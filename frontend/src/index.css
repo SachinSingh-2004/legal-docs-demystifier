@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@import "./css/styles.css";
+
+/* Extra tailwind base additions */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
