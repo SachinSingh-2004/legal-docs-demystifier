@@ -356,3 +356,7 @@
 [2026-07-03 00:01:49:149] [[32minfo[39m]: [32mGET /api/analyze/6a46a341df512dcbdb86e95f - IP: ::1[39m
 [2026-07-03 00:01:51:151] [[32minfo[39m]: [32mGET /api/analyze/history - IP: ::1[39m
 [2026-07-03 00:01:51:151] [[32minfo[39m]: [32mGET /api/analyze/history - IP: ::1[39m
+[2026-07-03 10:27:48:2748] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-07-03 10:34:31:3431] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-07-03 10:34:31:3431] [[32minfo[39m]: [32mGET /api/analyze/history - IP: ::1[39m
+[2026-07-03 10:34:32:3432] [[32minfo[39m]: [32mGET /api/analyze/history - IP: ::1[39m

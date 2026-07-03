@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, AlertCircle, ArrowRight, CheckCircle } from 'lucide-react';
 import toast from '../utils/toast';
+import { apiFetch } from '../utils/api';
+
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -59,9 +61,8 @@ const LoginPage = () => {
     setForgotSuccess('');
 
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await apiFetch('/api/auth/forgot-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
       });
       const data = await res.json();
@@ -83,13 +84,13 @@ const LoginPage = () => {
     }
 
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await apiFetch('/api/auth/reset-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: resetTokenInput, password: newPassword })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Reset failed');
+
 
       setResetSuccess('Password reset successfully. You can now login.');
       toast.success('Password reset completed');

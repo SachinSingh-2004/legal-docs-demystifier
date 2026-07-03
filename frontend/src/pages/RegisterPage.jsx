@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle } from 'lucide-react';
 import toast from '../utils/toast';
+import { apiFetch } from '../utils/api';
+
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -58,9 +60,10 @@ const RegisterPage = () => {
   const handleVerifyNow = async () => {
     setVerifying(true);
     try {
-      const res = await fetch(`/api/auth/verify-email?token=${verifyToken}`);
+      const res = await apiFetch(`/api/auth/verify-email?token=${verifyToken}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Verification failed');
+
       
       setVerifySuccess(true);
       toast.success('Email verified successfully!');

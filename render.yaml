@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: legal-docs-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PRIMARY_AI_PROVIDER
+        value: gemini
+      - key: FRONTEND_URL
+        value: https://legal-docs-demystifier.vercel.app

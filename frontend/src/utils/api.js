@@ -14,6 +14,46 @@ function onRefreshed(token) {
   refreshSubscribers = [];
 }
 
+function makeResponseRobust(response) {
+  if (!response) return response;
+
+  return new Proxy(response, {
+    get(target, prop) {
+      if (prop === 'json') {
+        return async () => {
+          const contentType = target.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              return await target.json();
+            } catch (jsonErr) {
+              return { error: 'Failed to parse server response as JSON' };
+            }
+          }
+
+          try {
+            const text = await target.text();
+            if (!text) {
+              return { error: `Connection failed: Backend server is offline or returned an empty response (Status ${target.status})` };
+            }
+            if (text.length < 200 && !text.trim().startsWith('<')) {
+              return { error: text.trim() };
+            }
+            return { error: `Server returned an error page (Status ${target.status}). Please check if the backend server is running.` };
+          } catch (textErr) {
+            return { error: `Network error or invalid response (Status ${target.status})` };
+          }
+        };
+      }
+      
+      const value = target[prop];
+      if (typeof value === 'function') {
+        return value.bind(target);
+      }
+      return value;
+    }
+  });
+}
+
 export async function apiFetch(url, options = {}) {
   // 1. Get access token from localStorage
   const accessToken = localStorage.getItem('accessToken');
@@ -31,6 +71,7 @@ export async function apiFetch(url, options = {}) {
 
   try {
     let response = await fetch(url, options);
+    response = makeResponseRobust(response);
 
     // 2. Intercept 401 Unauthorized errors (expired token)
     if (response.status === 401) {
@@ -76,10 +117,19 @@ export async function apiFetch(url, options = {}) {
         }
 
         // Wait for token refresh to complete
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((newToken) => {
-            options.headers['Authorization'] = `Bearer ${newToken}`;
-            resolve(fetch(url, options));
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh(async (newToken) => {
+            try {
+              options.headers['Authorization'] = `Bearer ${newToken}`;
+              const retryRes = await fetch(url, options);
+              resolve(makeResponseRobust(retryRes));
+            } catch (err) {
+              if (err.message === 'Failed to fetch') {
+                reject(new Error('Could not connect to the server. Please ensure the backend is running.'));
+              } else {
+                reject(err);
+              }
+            }
           });
         });
       }
@@ -88,6 +138,10 @@ export async function apiFetch(url, options = {}) {
     return response;
   } catch (err) {
     console.error('Fetch error:', err);
+    if (err.message === 'Failed to fetch') {
+      throw new Error('Could not connect to the server. Please ensure the backend is running.');
+    }
     throw err;
   }
 }
+
